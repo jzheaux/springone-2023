@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Entry</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+</head>
+<body><center>
+<div class="window" style="margin: 32px; width: 250px">
+    <div class="title-bar">
+        <div class="title-bar-text">
+            Add a DVD to Your Library
+        </div>
+    </div>
+    <div class="window-body">
+        <form id="entry"
+              method="post"
+              th:action="@{'/dvd/' + ${dvd.id} + '/store'}"
+              th:object="${dvd}"
+              enctype="multipart/form-data">
+            <input id="id" type="hidden" th:field="*{id}"/>
+            <input id="image" type="hidden" th:field="*{imageBase64}"/>
+            <dl>
+                <dt><label for="title">Title:</label></dt>
+                <dd>
+                    <input id="title" type="text" th:field="*{title}"/>
+                </dd>
+                <dt><label for="description">Description:</label></dt>
+                <dd>
+                    <input id="description" type="text" th:field="*{description}"/>
+                </dd>
+                <dt><label for="released">Year Released:</label></dt>
+                <dd>
+                    <input id="released" type="text" th:field="*{released}"/>
+                </dd>
+                <dt><label for="minutes">Minutes:</label></dt>
+                <dd>
+                    <input id="minutes" type="text" th:field="*{minutes}"/>
+                </dd>
+                <dt><label for="upload">Image:</label></dt>
+                <dd>
+                    <div th:if="${dvd.image != null}">
+                        <img th:src="@{'data:image/png;base64,' + ${dvd.imageBase64}}" alt="${dvd.title}"/>
+                    </div>
+                    <input id="upload" type="file" name="file" accept="image/png" />
+                </dd>
+            </dl>
+
+            <button class="btn btn-sm btn-outline-success float-right" type="submit">
+                Save
+            </button>
+        </form>
+    </div>
+</div>
+</center>
+</body>
+</html>

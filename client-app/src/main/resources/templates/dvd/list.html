@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+</head>
+<body><center>
+<div class="window" style="margin: 32px; width: 800px">
+  <div class="title-bar">
+    <div class="title-bar-text">
+      Add a DVD to Your Library
+    </div>
+  </div>
+  <div class="window-body">
+    <div th:if="${dvds.size() > 0}">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="dvd : ${dvds}">
+            <td><img th:src="@{'data:image/png;base64,' + ${dvd.imageBase64}}" th:alt="${dvd.title}"/></td>
+            <td>[[${dvd.title}]]</td>
+            <td>[[${dvd.description}]]</td>
+            <td>
+              <form method="post" th:action="@{'/dvd/' + ${dvd.id} + '/remove'}">
+                <button type="submit" value="Delete">Delete</button>
+              </form>
+              <button><a th:href="@{'/dvd/' + ${dvd.id}}">Edit</a></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button><a href="/dvd/new">Add Entry</a></button>
+  </div>
+</div>
+</center>
+</body>
+</html>

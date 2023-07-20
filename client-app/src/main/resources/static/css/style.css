@@ -1,0 +1,17 @@
+body {
+    background: url("/images/craiyon_130708_windows_xp_grassy_knoll_background.png");
+    background-size: cover;
+}
+
+button a {
+    text-decoration: none;
+    text-decoration-color: black;
+}
+
+.window-body {
+    text-align: center;
+}
+
+dd {
+    margin: 0
+}
