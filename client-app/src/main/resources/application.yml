@@ -1,0 +1,12 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          springone2023:
+            assertingparty:
+              metadata-uri: https://dev-05937739.okta.com/app/exkaj30wq0Lh6IsLu5d7/sso/saml/metadata
