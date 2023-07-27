@@ -1,0 +1,34 @@
+server:
+  port: 9000
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          client-app:
+            registration:
+              client-id: "client-app"
+              # the client secret is "secret" (without quotes)
+              client-secret: "{bcrypt}$2a$10$jdJGhzsiIqYFpjJiYWMl/eKDOd8vdyQis2aynmFN0dgJ53XvpzzwC"
+              client-authentication-methods: "client_secret_basic"
+              authorization-grant-types: "client_credentials, authorization_code"
+              redirect-uris:
+                - "http://client-app:8080/login/oauth2/code/client-app"
+              scopes:
+                - openid
+                - profile
+    saml2:
+      relyingparty:
+        registration:
+          springone2023:
+            signing.credentials:
+              - private-key-location: classpath:credentials/rp-private.key
+                certificate-location: classpath:credentials/rp-certificate.crt
+            assertingparty:
+              metadata-uri: http://idp.springone.io/simplesaml/saml2/idp/metadata.php
+          springtwo2023:
+            signing.credentials:
+              - private-key-location: classpath:credentials/rp-private.key
+                certificate-location: classpath:credentials/rp-certificate.crt
+            assertingparty:
+              metadata-uri: http://idp.springtwo.io/simplesaml/saml2/idp/metadata.php

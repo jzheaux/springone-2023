@@ -1,3 +1,4 @@
 rootProject.name = 'springone-2023'
 
 include ":client-app"
+include ":sso"

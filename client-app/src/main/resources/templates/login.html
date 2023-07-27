@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+</head>
+<body><center>
+    <div class="window" style="margin: 32px; width: 800px">
+        <div class="title-bar">
+            <div class="title-bar-text">
+                Log in with:
+            </div>
+        </div>
+        <div class="window-body">
+            <button th:each="source: ${sources}">
+                <a th:href="@{'/saml2/authenticate/' + ${source.registrationId}}">
+                    [[${source.registrationId}]]
+                </a>
+            </button>
+        </div>
+    </div>
+</center>
+</body>
+</html>
