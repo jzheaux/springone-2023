@@ -1,0 +1,6 @@
+{
+    "CN": "springone 2023 demo certificate",
+    "hosts": [
+        "*.springone.io", "*.springtwo.io"
+    ]
+}

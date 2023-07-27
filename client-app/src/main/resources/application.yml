@@ -1,0 +1,12 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+  docker:
+    compose:
+      enabled: true
+      file: ./etc/docker-compose.yml
+      lifecycle-management: start_only
+      readiness:
+        wait: never
