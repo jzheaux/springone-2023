@@ -1,13 +1,11 @@
 package com.example.clientapp;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +43,8 @@ public class DvdController {
     }
 
     @PostMapping("/dvd/{id}/store")
-    String storeDvd(@ModelAttribute("dvd") Dvd dvd, @RequestParam("file") MultipartFile file) throws IOException {
+    String storeDvd(@ModelAttribute("dvd") Dvd dvd, @RequestParam("file") MultipartFile file,
+                    @AuthenticationPrincipal User user) throws IOException {
         String base64 = dvd.getImageBase64();
         if (base64 != null) {
             dvd.setImage(Base64.getDecoder().decode(base64));
@@ -54,6 +53,7 @@ public class DvdController {
         if (b.length > 0) {
             dvd.setImage(b);
         }
+        dvd.setOwner(user);
         this.dvds.save(dvd);
         return "redirect:/dvd/list";
     }
