@@ -28,6 +28,13 @@ public class User {
 		this.id = UUID.randomUUID();
 	}
 
+	public User(User user) {
+		this.id = user.id;
+		this.email = user.email;
+		this.firstName = user.firstName;
+		this.lastName = user.lastName;
+	}
+
 	public UUID getId() {
 		return id;
 	}
