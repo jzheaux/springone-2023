@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
 
 @Entity
@@ -27,6 +29,9 @@ public class Dvd {
 
     @Column
     Integer minutes; // in minutes
+
+    @ManyToOne
+    User owner;
 
     @Transient
     String imageBase64;
@@ -111,5 +116,13 @@ public class Dvd {
 
     public void setImageBase64(String imageBase64) {
         this.imageBase64 = imageBase64;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }
