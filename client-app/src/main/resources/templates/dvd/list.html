@@ -21,6 +21,7 @@
             <th scope="col"></th>
             <th scope="col">Title</th>
             <th scope="col">Description</th>
+            <th scope="col">Owner</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
@@ -29,6 +30,7 @@
             <td><img th:src="@{'data:image/png;base64,' + ${dvd.imageBase64}}" th:alt="${dvd.title}"/></td>
             <td>[[${dvd.title}]]</td>
             <td>[[${dvd.description}]]</td>
+            <td>[[${dvd.owner.firstName}]]</td>
             <td>
               <form method="post" th:action="@{'/dvd/' + ${dvd.id} + '/remove'}">
                 <button type="submit" value="Delete">Delete</button>
