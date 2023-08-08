@@ -17,9 +17,12 @@ public class SecurityConfig {
 	SecurityFilterChain appSecurity(HttpSecurity http) throws Exception {
 		http
 				.authorizeHttpRequests((authorize) -> authorize
+						.requestMatchers("/css/**", "/images/**").permitAll()
 						.anyRequest().authenticated()
 				)
-				.saml2Login(Customizer.withDefaults())
+				.saml2Login((saml2) -> saml2
+						.loginPage("/login").permitAll()
+				)
 				.saml2Metadata(Customizer.withDefaults())
 				.saml2Logout(Customizer.withDefaults());
 		return http.build();
