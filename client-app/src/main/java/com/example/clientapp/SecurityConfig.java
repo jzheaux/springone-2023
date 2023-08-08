@@ -20,7 +20,8 @@ public class SecurityConfig {
 						.anyRequest().authenticated()
 				)
 				.saml2Login(Customizer.withDefaults())
-				.saml2Metadata(Customizer.withDefaults());
+				.saml2Metadata(Customizer.withDefaults())
+				.saml2Logout(Customizer.withDefaults());
 		return http.build();
 	}
 
