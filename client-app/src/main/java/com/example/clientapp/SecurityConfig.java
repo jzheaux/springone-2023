@@ -1,5 +1,7 @@
 package com.example.clientapp;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -32,60 +35,61 @@ public class SecurityConfig {
 				)
 				.saml2Login((saml2) -> saml2
 						.authenticationManager(new ProviderManager(provider))
-						.successHandler(new SimpleUrlAuthenticationSuccessHandler("/dvd/list"))
+						.defaultSuccessUrl("/dvd/list", true)
 				);
 		return http.build();
 	}
 
 	private OpenSaml4AuthenticationProvider getOpenSaml4AuthenticationProvider() {
 		OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
-		authenticationProvider.setResponseAuthenticationConverter(responseToken -> {
-			Saml2Authentication authentication = OpenSaml4AuthenticationProvider
-					.createDefaultResponseAuthenticationConverter()
-					.convert(responseToken);
-			User user = createAndRetrieve(authentication);
-			return new MySaml2Authentication(user, authentication);
+		var delegate = OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter();
+		authenticationProvider.setResponseAuthenticationConverter((responseToken) -> {
+			Saml2Authentication authentication = delegate.convert(responseToken);
+			UserAdapter user = createAndRetrieve((Saml2AuthenticatedPrincipal) authentication.getPrincipal());
+			return new Saml2Authentication(user, authentication.getSaml2Response(), authentication.getAuthorities());
 		});
 		return authenticationProvider;
 	}
 
-	private User createAndRetrieve(Authentication authentication) {
-		Optional<User> maybeUser = this.userRepository.findByEmail(authentication.getName());
-		if (maybeUser.isPresent()) {
-			return maybeUser.get();
-		}
-		User user = new User();
-		user.setEmail(authentication.getName());
-		if (authentication.getPrincipal() instanceof DefaultSaml2AuthenticatedPrincipal saml2Principal) {
-			user.setFirstName(saml2Principal.getFirstAttribute("firstName"));
-			user.setLastName(saml2Principal.getFirstAttribute("lastName"));
-		}
-		return this.userRepository.save(user);
+	private UserAdapter createAndRetrieve(Saml2AuthenticatedPrincipal principal) {
+		return this.userRepository.findByEmail(principal.getName())
+				.map((user) -> new UserAdapter(user, principal))
+				.orElseGet(() -> {
+					User user = new User();
+					user.setEmail(principal.getName());
+					user.setFirstName(principal.getFirstAttribute("firstName"));
+					user.setLastName(principal.getFirstAttribute("lastName"));
+					return new UserAdapter(this.userRepository.save(user), principal);
+				});
 	}
 
-	static class MySaml2Authentication extends AbstractAuthenticationToken {
+	private static class UserAdapter extends User implements Saml2AuthenticatedPrincipal {
+		private final Saml2AuthenticatedPrincipal principal;
 
-		private final User user;
-
-		private final Saml2Authentication authentication;
-
-		MySaml2Authentication(User user, Saml2Authentication authentication) {
-			super(authentication.getAuthorities());
-			this.user = user;
-			this.authentication = authentication;
-			setAuthenticated(true);
+		private UserAdapter(User user, Saml2AuthenticatedPrincipal principal) {
+			super(user);
+			this.principal = principal;
 		}
 
 		@Override
-		public Object getCredentials() {
-			return this.authentication.getCredentials();
+		public String getName() {
+			return this.principal.getName();
 		}
 
 		@Override
-		public Object getPrincipal() {
-			return this.user;
+		public Map<String, List<Object>> getAttributes() {
+			return this.principal.getAttributes();
 		}
 
+		@Override
+		public String getRelyingPartyRegistrationId() {
+			return this.principal.getRelyingPartyRegistrationId();
+		}
+
+		@Override
+		public List<String> getSessionIndexes() {
+			return this.principal.getSessionIndexes();
+		}
 	}
 
 }
