@@ -1,38 +1,48 @@
 package com.example.clientapp;
 
+import java.util.Map;
+
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientPropertiesMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
 	@Bean
-	SecurityFilterChain appSecurity(HttpSecurity http) throws Exception {
+	SecurityFilterChain appSecurity(HttpSecurity http, LogoutSuccessHandler handler) throws Exception {
 		http
 				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/css/**", "/images/**").permitAll()
 						.anyRequest().authenticated()
 				)
-				.saml2Login((saml2) -> saml2
-						.loginPage("/login").permitAll()
-				)
-				.saml2Metadata(Customizer.withDefaults())
-				.saml2Logout(Customizer.withDefaults());
+				.oauth2Login(Customizer.withDefaults())
+				.logout((logout) -> logout.logoutSuccessHandler(handler));
 		return http.build();
 	}
 
 	@Bean
-	AuthenticationProvider openSaml4AuthenticationProvider(SamlResponseToUserConverter converter) {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
-		provider.setResponseAuthenticationConverter(converter);
-		return provider;
+	LogoutSuccessHandler logoutSuccessHandler(ClientRegistrationRepository registrations) {
+		return new OidcClientInitiatedLogoutSuccessHandler(registrations);
 	}
 
+	@Bean
+	ClientRegistrationRepository registrations(OAuth2ClientProperties properties) {
+		ClientRegistration registration = new OAuth2ClientPropertiesMapper(properties)
+				.asClientRegistrations().get("client-app");
+		registration = ClientRegistration.withClientRegistration(registration).providerConfigurationMetadata(
+				Map.of("end_session_endpoint", "http://auth-server:9000/logout")).build();
+		return new InMemoryClientRegistrationRepository(registration);
+	}
 }
