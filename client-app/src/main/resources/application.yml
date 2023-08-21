@@ -10,3 +10,10 @@ spring:
       lifecycle-management: start_only
       readiness:
         wait: never
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          springone2023:
+            assertingparty:
+              metadata-uri: http://idp.springone.io/simplesaml/saml2/idp/metadata.php
